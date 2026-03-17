@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Football Bot VN ⚽</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1a3a1f;--green-mid:#2d5a35;--green-light:#3d7a47;
+  --neon:#5dde5d;--neon-dim:#3aaa3a;--gold:#f0b429;
+  --bg:#0e1f12;--surface:#16291a;--surface2:#1e3522;
+  --border:#2d4a32;--text:#e8f5e9;--text-muted:#8fbc94;--red:#e53935;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--neon);letter-spacing:2px;line-height:1}
+.sub{font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.ball-icon{width:36px;height:36px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.online-badge{margin-left:auto;background:var(--green-mid);border:1px solid var(--neon-dim);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--neon);display:flex;align-items:center;gap:5px}
+.online-dot{width:6px;height:6px;border-radius:50%;background:var(--neon);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;flex-shrink:0;overflow-x:auto}
+.tab{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;border:none;background:none;color:var(--text-muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab.active{color:var(--neon);border-bottom-color:var(--neon)}
+.tab:hover:not(.active){color:var(--text)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.chat-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.msg{display:flex;gap:10px;max-width:88%}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6}
+.msg.bot .msg-bubble{background:var(--surface2);border:1px solid var(--border);border-radius:4px 16px 16px 16px}
+.msg.user .msg-bubble{background:var(--green-mid);border-radius:16px 4px 16px 16px;color:white}
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.msg.bot .msg-avatar{background:var(--green);border:1px solid var(--border)}
+.msg.user .msg-avatar{background:var(--green-light);font-size:12px;font-weight:600;color:white}
+.chat-input-area{padding:12px 16px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:none;max-height:100px;min-height:42px;outline:none}
+.chat-input:focus{border-color:var(--neon-dim)}
+.chat-input::placeholder{color:var(--text-muted)}
+.send-btn{background:var(--neon);border:none;border-radius:10px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.send-btn:hover{background:#6ef56e;transform:scale(1.05)}
+.send-btn:disabled{background:var(--border);cursor:not-allowed;transform:none}
+.send-btn svg{width:18px;height:18px;fill:var(--bg)}
+.quick-btns{display:flex;gap:8px;padding:0 16px 10px;overflow-x:auto;flex-shrink:0}
+.quick-btn{white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.quick-btn:hover{border-color:var(--neon-dim);color:var(--neon)}
+.typing{display:flex;gap:4px;align-items:center;padding:8px 12px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--neon-dim);animation:blink 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.quiz-area{flex:1;overflow-y:auto;padding:20px;min-height:0}
+.quiz-header{text-align:center;margin-bottom:20px}
+.quiz-header h2{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--neon);letter-spacing:2px}
+.quiz-header p{font-size:13px;color:var(--text-muted);margin-top:4px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.quiz-question{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:16px}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-option{padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:14px;text-align:left;color:var(--text);transition:all .15s;font-family:'DM Sans',sans-serif}
+.quiz-option:hover:not(:disabled){border-color:var(--neon-dim);background:var(--green)}
+.quiz-option.correct{border-color:var(--neon);background:#1a3d1a;color:var(--neon)}
+.quiz-option.wrong{border-color:var(--red);background:#3d1a1a;color:#f88}
+.quiz-option:disabled{cursor:not-allowed}
+.quiz-score{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.score-badge{background:var(--green-mid);border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--neon)}
+.next-btn{background:var(--neon);border:none;border-radius:10px;padding:10px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--bg);cursor:pointer;transition:all .15s}
+.next-btn:hover{background:#6ef56e}
+.next-btn:disabled{background:var(--border);cursor:not-allowed}
+.quiz-explanation{margin-top:12px;padding:10px 14px;background:var(--green);border-radius:10px;border-left:3px solid var(--neon);font-size:13px;color:var(--text-muted);line-height:1.5;display:none}
+.quiz-explanation.show{display:block}
+.quiz-loading{text-align:center;padding:40px;color:var(--text-muted);font-size:14px}
+.scores-area{flex:1;overflow-y:auto;padding:16px;min-height:0}
+.scores-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.scores-header h2{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--neon);letter-spacing:2px}
+.refresh-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.refresh-btn:hover{border-color:var(--neon-dim);color:var(--neon)}
+.league-section{margin-bottom:20px}
+.league-title{font-size:12px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:1px;padding:0 4px 8px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.match-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px}
+.match-teams{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.team-name{font-size:14px;font-weight:500;flex:1}
+.team-name.right{text-align:right}
+.match-score{text-align:center;min-width:60px}
+.score-num{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+.match-status{font-size:10px;color:var(--text-muted);margin-top:2px;text-align:center}
+.match-status.live{color:var(--red);font-weight:600}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.search-input-wrap{position:relative;margin-bottom:14px}
+.search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px 10px 36px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none}
+.search-input:focus{border-color:var(--neon-dim)}
+.search-input::placeholder{color:var(--text-muted)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.spin{display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--neon);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="ball-icon">⚽</div>
+  <div>
+    <div class="logo">Football Bot VN</div>
+    <div class="sub">Powered by Google Gemini</div>
+  </div>
+  <div class="online-badge"><div class="online-dot"></div>Online</div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('chat')">💬 Hỏi đáp</button>
+  <button class="tab" onclick="showTab('quiz')">🧠 Quiz</button>
+  <button class="tab" onclick="showTab('scores')">📊 Kết quả</button>
+</div>
+
+<!-- CHAT -->
+<div class="main" id="tab-chat">
+  <div class="chat-area" id="chat-area">
+    <div class="msg bot">
+      <div class="msg-avatar">⚽</div>
+      <div class="msg-bubble">
+        Xin chào! Tôi là <strong>Football Bot VN</strong> 🏆<br><br>
+        • Kiến thức bóng đá thế giới &amp; Việt Nam<br>
+        • Thống kê cầu thủ, đội bóng<br>
+        • Kết quả &amp; lịch thi đấu mới nhất<br><br>
+        Hỏi tôi bất cứ điều gì nhé! 🎯
+      </div>
+    </div>
+  </div>
+  <div class="quick-btns">
+    <button class="quick-btn" onclick="quickAsk('Ronaldo hay Messi vĩ đại hơn?')">Ronaldo vs Messi</button>
+    <button class="quick-btn" onclick="quickAsk('BXH FIFA đội tuyển Việt Nam hiện tại?')">BXH Việt Nam</button>
+    <button class="quick-btn" onclick="quickAsk('Champions League 2024/25 ai đang dẫn đầu?')">Champions League</button>
+    <button class="quick-btn" onclick="quickAsk('V.League 2025 có gì mới?')">V.League 2025</button>
+    <button class="quick-btn" onclick="quickAsk('Giải thích luật việt vị')">Luật việt vị</button>
+    <button class="quick-btn" onclick="quickAsk('Top 5 cầu thủ Việt Nam xuất sắc nhất lịch sử')">Huyền thoại VN</button>
+    <button class="quick-btn" onclick="quickAsk('World Cup 2026 tổ chức ở đâu và khi nào?')">World Cup 2026</button>
+  </div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chat-input" placeholder="Hỏi về bóng đá..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="main" id="tab-quiz" style="display:none">
+  <div class="quiz-area">
+    <div class="quiz-header">
+      <h2>⚽ Football Quiz</h2>
+      <p>Thử thách kiến thức bóng đá của bạn</p>
+    </div>
+    <div class="quiz-score">
+      <div class="score-badge">🏆 Điểm: <span id="score-display">0</span> / <span id="total-display">0</span></div>
+      <button class="next-btn" id="new-quiz-btn" onclick="loadQuiz()">🎲 Câu hỏi mới</button>
+    </div>
+    <div id="quiz-content">
+      <div class="quiz-loading">Nhấn "Câu hỏi mới" để bắt đầu! 🎯</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORES -->
+<div class="main" id="tab-scores" style="display:none">
+  <div class="scores-area">
+    <div class="scores-header">
+      <h2>📊 Kết quả & Lịch</h2>
+      <button class="refresh-btn" onclick="loadScores()">🔄 Cập nhật</button>
+    </div>
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="score-query"
+        placeholder="VD: kết quả Man City, lịch V.League tuần này..."
+        onkeydown="if(event.key==='Enter') loadScores()"/>
+    </div>
+    <div id="scores-content">
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>Nhập câu hỏi hoặc nhấn "Cập nhật" để tải kết quả mới nhất</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TODAY = new Date().toLocaleDateString('vi-VN');
+let chatHistory = [], quizScore = 0, quizTotal = 0, currentAnswer = null, isLoading = false;
+const QUIZ_CATS = ['lịch sử World Cup','Premier League','V.League và bóng đá Việt Nam','Champions League','cầu thủ nổi tiếng thế giới','La Liga','luật và quy tắc bóng đá','đội tuyển châu Á','Serie A','Bundesliga','bóng đá nữ'];
+
+async function callAPI({ system, messages, useSearch = false }) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, messages, useSearch })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Lỗi ' + res.status);
+  return data.text || '';
+}
+
+function showTab(tab) {
+  ['chat','quiz','scores'].forEach(t =>
+    document.getElementById('tab-'+t).style.display = t===tab ? 'flex' : 'none');
+  document.querySelectorAll('.tab').forEach((b,i) =>
+    b.classList.toggle('active', ['chat','quiz','scores'][i]===tab));
+}
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function quickAsk(q) { document.getElementById('chat-input').value=q; sendMessage(); }
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value=''; input.style.height='auto';
+  addMessage('user', text);
+  chatHistory.push({ role:'user', content:text });
+  setLoading(true);
+  const typing = addTyping();
+  try {
+    const reply = await callAPI({
+      system: `Bạn là Football Bot VN — trợ lý bóng đá thông minh. Hôm nay ${TODAY}. Trả lời bằng tiếng Việt, ngắn gọn, dùng emoji phù hợp. Am hiểu V.League, đội tuyển Việt Nam, Premier League, La Liga, Champions League, World Cup. Với câu hỏi về tin tức/kết quả mới nhất, hãy tìm kiếm web.`,
+      messages: chatHistory,
+      useSearch: true
+    });
+    typing.remove();
+    chatHistory.push({ role:'assistant', content:reply });
+    addMessage('bot', reply);
+  } catch(e) {
+    typing.remove();
+    addMessage('bot', '❌ ' + e.message);
+  }
+  setLoading(false);
+}
+
+function addMessage(role, text) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const formatted = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n/g,'<br>');
+  div.innerHTML = `<div class="msg-avatar">${role==='user'?'👤':'⚽'}</div><div class="msg-bubble">${formatted}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+function addTyping() {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `<div class="msg-avatar">⚽</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  area.appendChild(div); area.scrollTop = area.scrollHeight;
+  return div;
+}
+function setLoading(v) { isLoading=v; document.getElementById('send-btn').disabled=v; }
+
+async function loadQuiz() {
+  const cat = QUIZ_CATS[Math.floor(Math.random()*QUIZ_CATS.length)];
+  document.getElementById('quiz-content').innerHTML = `<div class="quiz-loading"><div class="spin"></div><br>Đang tạo câu hỏi về <strong>${cat}</strong>...</div>`;
+  document.getElementById('new-quiz-btn').disabled = true;
+  currentAnswer = null;
+  try {
+    const raw = await callAPI({
+      system: 'Bạn là quiz master bóng đá. Trả lời CHỈ bằng JSON hợp lệ, không markdown, không preamble, không backtick.',
+      messages: [{ role:'user', content:`Tạo 1 câu hỏi quiz bóng đá về "${cat}". JSON: {"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."} — correct là index 0-3.` }]
+    });
+    const quiz = JSON.parse(raw.replace(/```json\n?|\n?```/g,'').trim());
+    currentAnswer = quiz.correct;
+    document.getElementById('quiz-content').innerHTML = `
+      <div class="quiz-card">
+        <div class="quiz-question">❓ ${quiz.question}</div>
+        <div class="quiz-options">
+          ${quiz.options.map((o,i)=>`<button class="quiz-option" onclick="checkAnswer(this,${i})">${o}</button>`).join('')}
+        </div>
+        <div class="quiz-explanation" id="quiz-exp">💡 ${quiz.explanation||''}</div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('quiz-content').innerHTML = `<div class="quiz-loading">❌ ${e.message}</div>`;
+  }
+  document.getElementById('new-quiz-btn').disabled = false;
+}
+
+function checkAnswer(btn, idx) {
+  if (currentAnswer === null) return;
+  document.querySelectorAll('.quiz-option').forEach((o,i) => {
+    o.disabled = true;
+    if (i===currentAnswer) o.classList.add('correct');
+    else if (i===idx && i!==currentAnswer) o.classList.add('wrong');
+  });
+  quizTotal++; if(idx===currentAnswer) quizScore++;
+  document.getElementById('score-display').textContent = quizScore;
+  document.getElementById('total-display').textContent = quizTotal;
+  const exp = document.getElementById('quiz-exp');
+  if (exp) exp.classList.add('show');
+}
+
+async function loadScores() {
+  const q = document.getElementById('score-query').value.trim() || `kết quả bóng đá hôm nay ${TODAY}`;
+  document.getElementById('scores-content').innerHTML = '<div class="quiz-loading"><div class="spin"></div><br>Đang tải kết quả...</div>';
+  try {
+    const reply = await callAPI({
+      system: `Trợ lý kết quả bóng đá. Hôm nay ${TODAY}. Tìm kiếm web để lấy kết quả mới nhất. Trả về HTML với class: league-section, league-title, match-card, match-teams, team-name (thêm "right" cho khách), match-score, score-num, match-status (thêm "live" nếu đang đấu). Không dùng markdown.`,
+      messages: [{ role:'user', content:`HTML kết quả: ${q}` }],
+      useSearch: true
+    });
+    document.getElementById('scores-content').innerHTML = reply ||
+      '<div class="empty-state"><div class="icon">📭</div><p>Không tìm thấy</p></div>';
+  } catch(e) {
+    document.getElementById('scores-content').innerHTML = `<div class="empty-state"><div class="icon">❌</div><p>${e.message}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>
